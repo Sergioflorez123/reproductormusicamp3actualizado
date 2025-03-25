@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reproductor de Música</title>
+  <style>
+    :root {
+      --bg-color: #000;
+      --secondary-bg: #111;
+      --track-bg: #222;
+      --neon-green: #39ff14;
+      --neon-blue: #00eaff;
+      --neon-pink: #ff10f0;
+      --neon-yellow: #ffea00;
+    }
+    body {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--neon-green);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      padding: 20px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .header h1 {
+      text-align: center;
+      color: var(--neon-pink);
+      text-shadow: 0 0 10px var(--neon-pink);
+    }
+    .controls, .player-controls {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    button {
+      background-color: var(--neon-blue);
+      color: black;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 0 10px var(--neon-blue);
+    }
+    button:hover {
+      background-color: var(--neon-green);
+      box-shadow: 0 0 15px var(--neon-green);
+    }
+    .playlist-container {
+      flex-grow: 1;
+      background-color: var(--track-bg);
+      border-radius: 10px;
+      overflow: auto;
+      min-height: 150px;
+      padding: 10px;
+      box-shadow: 0 0 10px var(--neon-yellow);
+    }
+    .track {
+      display: flex;
+      align-items: center;
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 5px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      color: var(--neon-pink);
+    }
+    .track:hover {
+      background-color: var(--neon-yellow);
+      color: black;
+    }
+    .track.active {
+      background-color: var(--neon-green);
+      color: black;
+    }
+    .player {
+      background-color: var(--secondary-bg);
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 0 15px var(--neon-blue);
+    }
+    .drop-zone {
+      border: 2px dashed var(--neon-pink);
+      padding: 20px;
+      text-align: center;
+      margin-bottom: 10px;
+      color: var(--neon-yellow);
+    }
+    .drop-zone.dragover {
+      background-color: rgba(255, 255, 255, 0.1);
+      box-shadow: 0 0 15px var(--neon-pink);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header"><h1>Reproductor de Música</h1></div>
+    <div class="controls">
+      <button id="add-file">Agregar Canciones</button>
+      <button id="add-url">Agregar URL</button>
+      <button id="delete" class="delete">Eliminar Seleccionada</button>
+      <input type="file" id="file-input" accept="audio/*" multiple>
+    </div>
+    <div class="drop-zone" id="drop-zone">Arrastra y suelta tus canciones aquí</div>
+    <div class="playlist-container">
+      <div class="playlist" id="playlist"></div>
+    </div>
+    <div class="player">
+      <div class="song-info">
+        <h3 id="song-title">No hay canción seleccionada</h3>
+      </div>
+      <div class="player-controls">
+        <button id="prev-btn">⏮</button>
+        <button id="play-btn">▶</button>
+        <button id="stop-btn">⏹</button>
+        <button id="next-btn">⏭</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

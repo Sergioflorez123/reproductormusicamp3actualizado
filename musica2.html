@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reproductor de Música</title>
+  <style>
+    :root {
+      --bg-color: #121212;
+      --secondary-bg: #181818;
+      --track-bg: #282828;
+      --green-spotify: #1DB954;
+      --light-gray: #b3b3b3;
+      --dark-gray: #535353;
+    }
+    body {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: white;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      padding: 20px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .header h1 {
+      text-align: center;
+      color: var(--green-spotify);
+    }
+    .controls, .player-controls {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    button {
+      background-color: var(--dark-gray);
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    button:hover {
+      background-color: var(--light-gray);
+      color: black;
+    }
+    .playlist-container {
+      flex-grow: 1;
+      background-color: var(--track-bg);
+      border-radius: 10px;
+      overflow: auto;
+      min-height: 150px;
+      padding: 10px;
+    }
+    .playlist {
+      min-height: 100px;
+    }
+    .track {
+      display: flex;
+      align-items: center;
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 5px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .track:hover {
+      background-color: var(--dark-gray);
+    }
+    .track.active {
+      background-color: var(--green-spotify);
+      color: white;
+    }
+    .player {
+      background-color: var(--secondary-bg);
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+    }
+    input[type="file"] {
+      display: none;
+    }
+    .drop-zone {
+      border: 2px dashed var(--light-gray);
+      padding: 20px;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    .drop-zone.dragover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header"><h1>Reproductor de Música</h1></div>
+    <div class="controls">
+      <button id="add-file">Agregar Canciones</button>
+      <button id="add-url">Agregar URL</button>
+      <button id="delete" class="delete">Eliminar Seleccionada</button>
+      <input type="file" id="file-input" accept="audio/*" multiple>
+    </div>
+    <div class="drop-zone" id="drop-zone">Arrastra y suelta tus canciones aquí</div>
+    <div class="playlist-container">
+      <div class="playlist" id="playlist"></div>
+    </div>
+    <div class="player">
+      <div class="song-info">
+        <h3 id="song-title">No hay canción seleccionada</h3>
+      </div>
+      <div class="player-controls">
+        <button id="prev-btn">⏮</button>
+        <button id="play-btn">▶</button>
+        <button id="stop-btn">⏹</button>
+        <button id="next-btn">⏭</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    const playlist = [];
+    let currentTrackIndex = -1;
+    let audio = new Audio();
+    
+    const playlistElement = document.getElementById('playlist');
+    const songTitleElement = document.getElementById('song-title');
+    const playBtn = document.getElementById('play-btn');
+    const stopBtn = document.getElementById('stop-btn');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const addFileBtn = document.getElementById('add-file');
+    const addURLBtn = document.getElementById('add-url');
+    const deleteBtn = document.getElementById('delete');
+    const fileInput = document.getElementById('file-input');
+    const dropZone = document.getElementById('drop-zone');
+    
+    function updatePlaylist() {
+      playlistElement.innerHTML = '';
+      playlist.forEach((track, index) => {
+        const trackElement = document.createElement('div');
+        trackElement.className = `track ${index === currentTrackIndex ? 'active' : ''}`;
+        trackElement.textContent = track.name;
+        trackElement.addEventListener('click', () => playTrack(index));
+        playlistElement.appendChild(trackElement);
+      });
+    }
+    
+    function playTrack(index) {
+      currentTrackIndex = index;
+      const track = playlist[index];
+      audio.src = track.url;
+      songTitleElement.textContent = track.name;
+      audio.play();
+    }
+    
+    playBtn.addEventListener('click', () => audio.paused ? audio.play() : audio.pause());
+    stopBtn.addEventListener('click', () => { audio.pause(); audio.currentTime = 0; });
+    prevBtn.addEventListener('click', () => playTrack((currentTrackIndex - 1 + playlist.length) % playlist.length));
+    nextBtn.addEventListener('click', () => playTrack((currentTrackIndex + 1) % playlist.length));
+    addFileBtn.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', (e) => {
+      Array.from(e.target.files).forEach(file => {
+        playlist.push({ name: file.name, url: URL.createObjectURL(file) });
+      });
+      updatePlaylist();
+    });
+    addURLBtn.addEventListener('click', () => {
+      const url = prompt('Ingrese la URL del audio:');
+      if (url) playlist.push({ name: url.split('/').pop(), url });
+      updatePlaylist();
+    });
+    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('dragover');
+      Array.from(e.dataTransfer.files).forEach(file => {
+        playlist.push({ name: file.name, url: URL.createObjectURL(file) });
+      });
+      updatePlaylist();
+    });
+    
+  </script>
+</body>
+</html>
